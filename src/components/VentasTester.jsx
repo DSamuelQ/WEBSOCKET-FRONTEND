@@ -61,7 +61,7 @@ const VentasTester = () => {
       socketRef.current.emit("releaseBomb", {
         bombId: venta.bomb.bombId,
         maxTime: data.totalTime,
-        saleId: data.fuelSaleId
+        saleId: data.fuelSaleId,
       });
 
       console.log("Emitido releaseBomb CON tiempo:", {
@@ -97,12 +97,14 @@ const VentasTester = () => {
       // Emit releaseBomb without maxTime
       socketRef.current.emit("releaseBomb", {
         bombId: venta.bomb.bombId,
-        saleId: data.sale.fuelSaleId
+        saleId: data.sale.fuelSaleId,
+        fuelId: venta.fuel.fuelId
       });
 
       console.log("Emitido releaseBomb sin tiempo:", {
         bombId: venta.bomb.bombId,
-        saleId: data.sale.fuelSaleId
+        saleId: data.sale.fuelSaleId,
+        fuelId: venta.fuel.fuelId
       });
     }
   };
