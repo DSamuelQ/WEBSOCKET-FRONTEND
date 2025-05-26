@@ -2,8 +2,12 @@ import React, { useEffect, useRef, useState } from 'react';
 import io from 'socket.io-client';
 
 const VentasTester = () => {
+  //const API_URL = 'http://143.110.227.19:3002/sale';
   const API_URL = 'http://localhost:3002/sale';
+  
+  //const SOCKET_URL = 'ws://143.110.227.19:3002';
   const SOCKET_URL = 'ws://localhost:3002';
+  
   const socketRef = useRef(null);
 
   const [saleIdType2, setsaleIdType2] = useState('');
@@ -82,15 +86,19 @@ const VentasTester = () => {
       fuel: { fuelId: "a5610883-cc68-4b51-b7f7-4f0ab86907bb" },
       createdBy: { employeeId: "uuid" }
     };
+    let data= null;
+    try{
+      const res = await fetch(`${API_URL}/create/`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(venta)
 
-    const res = await fetch(`${API_URL}/create/`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(venta)
-    });
-
-    const data = await res.json();
-    console.log("Venta tipo 2 creada:", data);
+      });
+      data = await res.json();
+      console.log("Venta tipo 2 creada:", data);
+    } catch (error) {
+      console.error("Error al crear venta tipo 2:", error);
+    }
     if (data && socketRef.current) {
       setsaleIdType2(data.sale.fuelSaleId);
       setbombIdType2(venta.bomb.bombId); // Save the bombId
@@ -154,6 +162,30 @@ const VentasTester = () => {
     });
   };
 
+  const putBombInMaintenance = () => {
+    if (socketRef.current && bombIdType2) {
+      socketRef.current.emit("setBombToMaintenance", {
+        bombId: bombIdType2,
+      });
+
+      console.log("Emitido bombInMaintenance:", {
+        bombId: bombIdType2,
+      });
+    }
+  };
+
+  const resetBomb = () => {
+    if (socketRef.current && bombIdType2) {
+      socketRef.current.emit("setResetBombToBlocked", {
+        bombId: bombIdType2,
+      });
+
+      console.log("Emitido resetBomb:", {
+        bombId: bombIdType2,
+      });
+    }
+  };
+
   return (
     <div className="p-6 space-y-4">
       <h2 className="text-xl font-bold mb-4">Probador de Ventas</h2>
@@ -161,11 +193,13 @@ const VentasTester = () => {
       <button onClick={createSaleType1} className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded">
         Crear venta Tipo 1
       </button>
-
+      <br />
+      <br />
       <button onClick={initializeSaleType2} className="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded">
         Iniciar venta Tipo 2
       </button>
-
+      <br />
+      {/*
       <div className="flex items-center gap-2">
         <input
           type="number"
@@ -182,9 +216,26 @@ const VentasTester = () => {
       <button onClick={sendTotalTime} className="bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded">
         Enviar tiempo (totalTime)
       </button>
-
+      */}
+      <br />
       <button onClick={finishSaleType2} className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded">
         Finalizar venta Tipo 2
+      </button>
+      <br />
+      <br />
+      <button
+        onClick={putBombInMaintenance}
+        className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded"
+      >
+        Poner en mantenimiento
+      </button>
+      <br />
+      <br />
+      <button
+        onClick={resetBomb}
+        className="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded"
+      >
+        Reiniciar bomba
       </button>
     </div>
   );
